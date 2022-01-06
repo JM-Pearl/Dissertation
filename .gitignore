@@ -130,3 +130,4 @@ dmypy.json
 
 # specific files not to commit
 *.pkl
+All_speeches_labelled.csv
