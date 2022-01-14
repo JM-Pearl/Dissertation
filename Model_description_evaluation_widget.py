@@ -65,11 +65,11 @@ def get_speech_info(mapper,DF,year,topic):
         formatted = f"{window_id}: {', '.join(row['window_terms'])}"
         descriptions.append(formatted)
     
-
     speech_list = DF.loc[(DF.year_x == year) & (DF.topic_id.isin(window_sub.topic_id))]
     if len(speech_list) > 5:
+        speech_list.sort_values('topic_weight',ascending=False)
         speech_strings = []
-        for ix,row in speech_list.sample(5).iterrows():
+        for ix,row in speech_list.sort_values('topic_weight',ascending=False).head(5).iterrows():
             speech_strings.append(f"{row.topic_id}: {row.speech_text}")
     else:
         speech_strings = ['']
@@ -80,6 +80,7 @@ def Run_speech_widget(speech_df,mapper):
     
     year = 1983
     topic = 'abortion'
+    
     
     dt = widgets.Dropdown(
         options=speech_df.dynamic_label.unique(),
@@ -122,7 +123,6 @@ def Run_speech_widget(speech_df,mapper):
     items = [dt,year_val,terms,speeches]
 
     def on_value_change(change):
-        print(change)
         if change['owner'] == year_val:
             window_topics, speeches_string = get_speech_info(mapper,speech_df,change['new'],dt.value)
         else:
