@@ -1,0 +1,251 @@
+---
+title: "Visualizing Framing Results"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(gt)
+
+df <- read.csv('Results/True_and_Nulls_Frame.csv')
+term.df <- read.csv('Results/term_correlations_frames.csv')
+
+```
+
+```{r}
+df <- df %>%
+  subset(!topic %in% c("procedural",'tribute','armenian_genocide'))
+
+gdf = df %>%
+  group_by(year,iter) %>%
+  summarise(distance = mean(distance),
+            polarization = mean(polarization),
+            partisanship = mean(partisanship),
+            type = first(type))
+
+plot_theme = theme(panel.background = element_blank(),
+        plot.title = element_text(hjust = 0.5,size=20),
+        plot.margin = unit(c(1,3,1,1), "lines"),
+        axis.line = element_line(),
+        axis.title = element_text(size=16),
+        axis.text = element_text(size=14))
+```
+
+```{r fig.height=6, fig.width=12}
+gdf %>%
+  subset(type == 'true') %>%
+  ggplot(aes(x=year,y=distance)) + 
+  geom_line(color='#7a3271',size=2) + 
+  plot_theme +
+  scale_x_continuous(expand=c(0,0),breaks=seq(1975,2020,by=5)) +
+  ylim(0.03,0.08) +
+  ylab('Frame Polarization (cosine distance)') +
+  ggtitle("Frame Polarization 1983-2016") +
+  xlab('Year')
+```
+
+```{r fig.height=6, fig.width=12}
+  ggplot(gdf,aes(x=year,y=distance)) + 
+  geom_line(data=gdf[gdf$type == "true",],color='#7a3271',size=2) + 
+  geom_line(data=gdf[gdf$type != "true",],aes(group=iter),alpha=0.1,size=0.5) + 
+  plot_theme +
+  scale_x_continuous(expand=c(0,0),breaks=seq(1975,2020,by=5)) +
+  ylim(0.0,0.08) +
+  ylab('Frame Polarization (cosine distance)') +
+  ggtitle("Frame Polarization 1983-2016") +
+  xlab('Year')
+```
+
+```{r fig.height=6, fig.width=12}
+gdf %>%
+  subset(type == 'true') %>%
+  ggplot(aes(x=year,y=polarization)) + 
+  geom_line(color='#7a3271',size=2) + 
+  plot_theme +
+  scale_x_continuous(expand=c(0,0),breaks=seq(1975,2020,by=5)) +
+  ylim(0.06,0.09) +
+  ylab('Polarization (Jensen et al. 2010)') +
+  ggtitle("Term Use Polarization 1983-2016") +
+  xlab('Year')
+
+```
+
+```{r fig.height=6, fig.width=12}
+  ggplot(gdf,aes(x=year,y=polarization)) + 
+  geom_line(data=gdf[gdf$type == "true",],color='#7a3271',size=2) + 
+  geom_line(data=gdf[gdf$type != "true",],aes(group=iter),alpha=0.1,size=0.5) + 
+  plot_theme +
+  scale_x_continuous(expand=c(0,0),breaks=seq(1975,2020,by=5)) +
+  ylim(0.04,0.1) +
+  ylab('Polarization (Jensen et al. 2010)') +
+  ggtitle("Term Use Polarization 1983-2016") +
+  xlab('Year')
+
+```
+
+```{r fig.height=6, fig.width=12}
+  gdf %>%
+  subset(type == 'true') %>%
+  ggplot(aes(x=year,y=partisanship)) + 
+  annotate('rect',xmin=1983,xmax=1995,ymin=-0.04,ymax=0.04,fill='#a5b3f7',alpha=0.3) + 
+  annotate('rect',xmin=1995,xmax=2007,ymin=-0.04,ymax=0.04,fill='#fc8f8f',alpha=0.3) + 
+  annotate('rect',xmin=2007,xmax=2011,ymin=-0.04,ymax=0.04,fill='#a5b3f7',alpha=0.3) + 
+  annotate('rect',xmin=2011,xmax=2016,ymin=-0.04,ymax=0.04,fill='#fc8f8f',alpha=0.3) + 
+  annotate('segment',x=1995,xend=1995,y=-0.04,yend=0.04,color='grey',linetype='dashed') + 
+  annotate('segment',x=2007,xend=2007,y=-0.04,yend=0.04,color='grey',linetype='dashed') + 
+  annotate('segment',x=2011,xend=2011,y=-0.04,yend=0.04,color='grey',linetype='dashed') + 
+  annotate('segment',x=1983,xend=2016,y=0,yend=0,color='black',linetype='dashed') + 
+  geom_line(color='black',size=2) + 
+  plot_theme +
+  scale_x_continuous(expand=c(0,0),breaks=seq(1975,2020,by=5)) +
+  ylab('Partisanship (Jensen et al. 2010)') +
+  ggtitle("Average Partisanship of Terms 1983-2016") +
+  xlab('Year') +
+  scale_y_continuous(expand=c(0,0))
+```
+
+
+```{r fig.height=6, fig.width=12}
+  ggplot(gdf,aes(x=year,y=partisanship)) + 
+  annotate('rect',xmin=1983,xmax=1995,ymin=-0.04,ymax=0.04,fill='#a5b3f7',alpha=0.3) + 
+  annotate('rect',xmin=1995,xmax=2007,ymin=-0.04,ymax=0.04,fill='#fc8f8f',alpha=0.3) + 
+  annotate('rect',xmin=2007,xmax=2011,ymin=-0.04,ymax=0.04,fill='#a5b3f7',alpha=0.3) + 
+  annotate('rect',xmin=2011,xmax=2016,ymin=-0.04,ymax=0.04,fill='#fc8f8f',alpha=0.3) + 
+  annotate('segment',x=1995,xend=1995,y=-0.04,yend=0.04,color='grey',linetype='dashed') + 
+  annotate('segment',x=2007,xend=2007,y=-0.04,yend=0.04,color='grey',linetype='dashed') + 
+  annotate('segment',x=2011,xend=2011,y=-0.04,yend=0.04,color='grey',linetype='dashed') + 
+  annotate('segment',x=1983,xend=2016,y=0,yend=0,color='black',linetype='dashed') + 
+  geom_line(data=gdf[gdf$type != "true",],aes(group=iter),alpha=0.1,size=0.5) + 
+  geom_line(data=gdf[gdf$type == "true",],color='black',size=2) + 
+  plot_theme +
+  scale_x_continuous(expand=c(0,0),breaks=seq(1975,2020,by=5)) +
+  ylab('Partisanship (Jensen et al. 2010)') +
+  ggtitle("Average Partisanship of Terms 1983-2016") +
+  xlab('Year') +
+  scale_y_continuous(expand=c(0,0))
+```
+
+### Specific topics
+```{r fig.height=12, fig.width=12}
+df %>%
+  mutate(iter = as.character(iter)) %>%
+  ggplot(aes(x=year,y=distance,color=type,groups=iter)) + 
+  geom_line(aes(alpha=type,size=type)) + 
+  scale_alpha_manual(values=c(0.05,1)) + 
+  scale_size_manual(values=c(0.5,0.5)) + 
+  scale_color_manual(values=c('grey','#7a3271')) + 
+  facet_wrap("~topic") +
+  theme(panel.background = element_blank(),
+        aspect.ratio = 0.6,
+        strip.text=element_text(size=6),
+        plot.title = element_text(hjust=0.5)) +
+  scale_x_continuous(expand=c(0,0),breaks = seq(1980,2020,by=10))+
+  ylab('Frame Polarization (cosine distance)') +
+  ggtitle("Frame Polarization 1983-2016") +
+  xlab('Year')
+```
+
+```{r fig.height=12, fig.width=12}
+df %>%
+  subset(type == 'true') %>%
+  ggplot(aes(x=year,y=partisanship_st)) +
+  annotate('rect',xmin=1983,xmax=1995,ymin=-4,ymax=4,fill='#a5b3f7',alpha=0.3) + 
+  annotate('rect',xmin=1995,xmax=2007,ymin=-4,ymax=4,fill='#fc8f8f',alpha=0.3) + 
+  annotate('rect',xmin=2007,xmax=2011,ymin=-4,ymax=4,fill='#a5b3f7',alpha=0.3) + 
+  annotate('rect',xmin=2011,xmax=2016,ymin=-4,ymax=4,fill='#fc8f8f',alpha=0.3) + 
+  annotate('segment',x=1995,xend=1995,y=-4,yend=4,color='grey',linetype='dashed') + 
+  annotate('segment',x=2007,xend=2007,y=-4,yend=4,color='grey',linetype='dashed') + 
+  annotate('segment',x=2011,xend=2011,y=-4,yend=4,color='grey',linetype='dashed') + 
+  annotate('segment',x=1983,xend=2016,y=0,yend=0,color='black',linetype='dashed') + 
+  geom_line() + 
+  scale_alpha_manual(values=c(0.05,1)) + 
+  scale_size_manual(values=c(0.5,0.5)) + 
+  scale_color_manual(values=c('grey','#7a3271')) + 
+  facet_wrap("~topic") +
+  theme(panel.background = element_blank(),
+        aspect.ratio = 0.6,
+        strip.text=element_text(size=6),
+        plot.title = element_text(hjust=0.5)) +
+  scale_x_continuous(expand=c(0,0),breaks = seq(1980,2020,by=10))+
+  ylab('Partisanship (Jensen et al. 2010)') +
+  ggtitle("Average Partisanship of Terms 1983-2016") +
+  xlab('Year')
+```
+
+
+## Most polarized topic by year
+```{r}
+top_topics = tdf %>%
+  group_by(year) %>%
+  top_n(3,distance) %>%
+  select(year,topic,distance) %>%
+  mutate(rank = seq(1,3))
+
+top_topics
+```
+
+
+### Terms
+```{r}
+term.df$party = ifelse(term.df$correlation > 0,'R','D')
+term.df$abs_corr = abs(term.df$correlation)
+
+get_D_terms = function(x){
+  year = x[1]
+  topic = x[2]
+  subs = term.df[term.df$year == as.numeric(year) & term.df$topic == topic & 
+                   term.df$party == 'D',]
+  top_3 = top_n(subs,3,abs_corr)
+  top_3 = arrange(top_3,party,desc(abs_corr))
+  terms = paste(top_3$term, collapse = ', ')
+  return(terms)
+}
+
+get_R_terms = function(x){
+  year = x[1]
+  topic = x[2]
+  subs = term.df[term.df$year == as.numeric(year) & term.df$topic == topic & 
+                   term.df$party == 'R',]
+  top_3 = top_n(subs,3,abs_corr)
+  top_3 = arrange(top_3,party,desc(abs_corr))
+  terms = paste(top_3$term, collapse = ', ')
+  return(terms)
+}
+
+top_topics$Dem_terms = apply(top_topics,1,get_D_terms)
+top_topics$Rep_terms = apply(top_topics,1,get_R_terms)
+
+```
+
+```{r fig.height=12, fig.width=12}
+top_topics %>%
+  ungroup() %>%
+  select(year,rank,topic,distance,Dem_terms,Rep_terms) %>%
+  rename("Year"=year,'Topic Rank'=rank,"Topic"=topic,'Cosine Distance'=distance,"Most Democratic Terms"=Dem_terms,'Most Republican Terms'=Rep_terms) %>%
+  gt() %>%
+  tab_header(
+    title='Most Polarized Topics',
+    subtitle = '1983-2016'
+  ) %>%
+  fmt_number(
+    columns='Cosine Distance',
+    decimals = 3
+  ) %>% 
+  tab_style(
+    style = list(
+      cell_fill(color = "#f2efef")
+    ),
+    locations = cells_body(
+      rows = seq(1,102)[rep(c(FALSE, FALSE,FALSE,TRUE, TRUE, TRUE),17)])
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()) %>%
+  tab_style(
+    style = cell_text(weight = 'bold'),
+    locations = cells_title()
+  )
+
+```
+
+
