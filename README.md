@@ -14,7 +14,7 @@ This dissertation uses unsupervised machine learning (topic models), supervised 
 --> `Evaluating_predictive_coefs.ipynb` - R ggplot descriptive graphs of classification coefs
 
 **Chapter 3: Frame Polarization**  
---> `Frame_Analysis.ipynb` - Distance and Polarization measures of word choice within topics
--->  `Visualize_framing_results.Rmd`  - R ggplot descriptive graphs for framing analysis and gt tables
+--> `Frame_Analysis.ipynb` - Distance and Polarization measures of word choice within topics  
+-->  `Visualize_framing_results.Rmd`  - R ggplot descriptive graphs for framing analysis and gt tables  
 
 **Chapter 4: Belief Network Polarization**
