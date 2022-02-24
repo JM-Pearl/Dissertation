@@ -7,9 +7,9 @@ output: html_document
 library(tidyverse)
 library(gt)
 
-df <- read.csv('Results/True_and_Nulls_Frame.csv')
+df <- read.csv('Results/True_Frame.csv')
 term.df <- read.csv('Results/term_correlations_frames.csv')
-
+df
 ```
 
 ```{r}
@@ -17,11 +17,10 @@ df <- df %>%
   subset(!topic %in% c("procedural",'tribute','armenian_genocide'))
 
 gdf = df %>%
-  group_by(year,iter) %>%
+  group_by(year) %>%
   summarise(distance = mean(distance),
             polarization = mean(polarization),
-            partisanship = mean(partisanship),
-            type = first(type))
+            partisanship = mean(partisanship))
 
 plot_theme = theme(panel.background = element_blank(),
         plot.title = element_text(hjust = 0.5,size=20),
@@ -32,13 +31,11 @@ plot_theme = theme(panel.background = element_blank(),
 ```
 
 ```{r fig.height=6, fig.width=12}
-p =gdf %>%
-  subset(type == 'true') %>%
+gdf %>%
   ggplot(aes(x=year,y=distance)) + 
   geom_line(color='#7a3271',size=2) + 
   plot_theme +
   scale_x_continuous(expand=c(0,0),breaks=seq(1975,2020,by=5)) +
-  ylim(0.03,0.08) +
   ylab('Frame Polarization (cosine distance)') +
   ggtitle("Frame Polarization 1983-2016") +
   xlab('Year')
@@ -87,8 +84,7 @@ gdf %>%
 ```
 
 ```{r fig.height=6, fig.width=12}
- p <- gdf %>%
-  subset(type == 'true') %>%
+ gdf %>%
   ggplot(aes(x=year,y=partisanship)) + 
   annotate('rect',xmin=1983,xmax=1995,ymin=-0.04,ymax=0.04,fill='#a5b3f7',alpha=0.3) + 
   annotate('rect',xmin=1995,xmax=2007,ymin=-0.04,ymax=0.04,fill='#fc8f8f',alpha=0.3) + 
@@ -104,7 +100,7 @@ gdf %>%
   ylab('Partisanship (Jensen et al. 2010)') +
   ggtitle("Average Partisanship of Terms 1983-2016") +
   xlab('Year') +
-  scale_y_continuous(expand=c(0,0)).
+  scale_y_continuous(expand=c(0,0))
 
 ggsave('Results/Figures/Avg_FramePartisanship_fig3.3.png',p,width=15,height=7)
 
@@ -182,7 +178,6 @@ df %>%
 ## Most polarized topic by year
 ```{r}
 top_topics = df %>%
-  subset(type == 'true') %>%
   group_by(year) %>%
   top_n(3,distance) %>%
   select(year,topic,distance) %>%
@@ -251,16 +246,20 @@ top_topics$Rep_strength = apply(top_topics,1,get_avg_R_weight)
 ```{r fig.height=12, fig.width=12}
 top_topics %>%
   ungroup() %>%
-  select(year,rank,topic,distance,Dem_terms,Rep_terms,Dem_strength,Rep_strength) %>%
-  rename("Year"=year,'Topic Rank'=rank,"Topic"=topic,'Cosine Distance'=distance,"Most Democratic Terms"=Dem_terms,'Most Republican Terms'=Rep_terms,'Avg Democrat corr.'=Dem_strength,'Avg Republican corr.'=Rep_strength) %>%
+  select(year,rank,topic,Dem_terms,Rep_terms,Dem_strength,Rep_strength) %>%
+  rename("Year"=year,'Topic Rank'=rank,"Topic"=topic,"Most Democratic Terms"=Dem_terms,'Most Republican Terms'=Rep_terms,'Avg Democrat corr.'=Dem_strength,'Avg Republican corr.'=Rep_strength) %>%
   gt() %>%
   tab_header(
     title='Most Polarized Topics',
     subtitle = '1983-2016'
   ) %>%
   fmt_number(
-    columns='Cosine Distance',
-    decimals = 3
+    columns='Avg Democrat corr.',
+    decimals = 2
+  ) %>% 
+  fmt_number(
+    columns='Avg Republican corr.',
+    decimals = 2
   ) %>% 
   tab_style(
     style = list(
@@ -328,8 +327,7 @@ figure
 ```
 ```{r fig.height=6, fig.width=12}
 library(ggridges)
-p = df %>% 
-  subset(type == 'true') %>%
+df %>% 
   mutate(Year = factor(year,ordered = TRUE)) %>%
   ggplot(aes(x = distance, y = Year)) + 
   geom_density_ridges2(scale=2,rel_min_height = 0.001) + 
@@ -339,7 +337,7 @@ p = df %>%
   xlab('Frame Polarization (cosine distance)') +
   ggtitle("Frame Polarization 1983-2016") +
   ylab('Year') + 
-  xlim(0.0,0.6) +
+  xlim(0.0,0.2) +
   annotate('text',x=0.32,y='1996',label='intelligence',hjust=1.15) +
   annotate('text',x=0.42,y='2008',label='abortion',hjust=1.15) +
   annotate('text',x=0.45,y='2014',label='unemployment',hjust=1.12)
