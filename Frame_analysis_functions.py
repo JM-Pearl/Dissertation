@@ -21,7 +21,8 @@ def make_DTM(sub,binary=True,remove_speaker=True):
     
     """
     # speaker and party ID
-    features = sub.groupby('speaker',as_index=False).party_y.first()
+    features = sub.groupby('unique_ID',as_index=False).party.first()
+    features.columns = ['unique_ID','_party']
     
     # document term matrix
     vectorizer = CountVectorizer(min_df=5,binary=binary,stop_words=procedural_stop_words)
@@ -32,18 +33,18 @@ def make_DTM(sub,binary=True,remove_speaker=True):
     terms = vectorizer.get_feature_names()
     
     # associate DTM with speaker and get term-speech frequency by speaker
-    DTM['speaker'] = list(sub['speaker'])
+    DTM['unique_ID'] = list(sub['unique_ID'])
     DTM = (DTM
-           .groupby('speaker',as_index=False)
+           .groupby('unique_ID',as_index=False)
            .sum()
-           .merge(features,on='speaker',how='left')
+           .merge(features,on='unique_ID',how='left')
           )
 
     if remove_speaker:
-        DTM = DTM.drop('speaker',1)
-        DTM.columns = terms + ['party_y']
+        DTM = DTM.drop('unique_ID',1)
+        DTM.columns = terms + ['_party']
     else:
-        DTM.columns = ['speaker'] + terms + ['party_y']
+        DTM.columns = ['unique_ID'] + terms + ['_party']
         
     return DTM
 
@@ -72,9 +73,8 @@ def chiSq_df(dtm,permute=False):
     """
     
     if permute: # shuffle party labels
-        dtm.party_y = np.random.permutation(dtm.party_y.values)
-        
-    term_frequencies = dtm.groupby('party_y').sum().T  # term frequency by party
+        dtm._party = np.random.permutation(dtm._party.values)
+    term_frequencies = dtm.groupby('_party').sum().T  # term frequency by party
     total_frequencies = term_frequencies.sum()  # total frequencies
 
     # set up for chi-square test
@@ -99,8 +99,8 @@ def perform_correlations(dtm,permute=False):
     """
     
     # contrast code for party
-    party_ID = [-1 if party == 'D' else 1 for party in dtm.party_y]
-    dtm = dtm.drop('party_y',1)
+    party_ID = [-1 if party == 'D' else 1 for party in dtm._party]
+    dtm = dtm.drop('_party',1)
     
     # normalize frequencies
     dtm_normed = np.apply_along_axis(lambda x: (x - np.mean(x))/np.std(x),0,dtm.to_numpy())
