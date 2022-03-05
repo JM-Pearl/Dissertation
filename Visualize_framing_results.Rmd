@@ -235,7 +235,7 @@ ggsave('Results/Figures/FramePolarization_dists_fig3.2.png',p,width=15,height=7)
 ```
 
 ```{r fig.height=6, fig.width=12}
-cons_df <- read.csv('Results/Frame_consolidation_spearman.csv')
+cons_df <- read.csv('Results/Frame_consolidation.csv')
 
 
 p <- cons_df %>%
